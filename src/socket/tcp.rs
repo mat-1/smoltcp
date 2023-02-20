@@ -1447,7 +1447,7 @@ impl<'a> Socket<'a> {
                     net_debug!("received a keep-alive or window probe packet, will send an ACK");
                     segment_in_window = false;
                 } else if !((window_start <= segment_start && segment_start <= window_end)
-                    && (window_start <= segment_end && segment_end <= window_end))
+                    || (window_start <= segment_end && segment_end <= window_end))
                 {
                     net_debug!(
                         "segment not in receive window ({}..{} not intersecting {}..{}), will send challenge ACK",
@@ -3858,6 +3858,45 @@ mod test {
                 ..RECV_TEMPL
             }]
         );
+    }
+
+    #[test]
+    fn test_established_receive_partially_outside_window() {
+        let mut s = socket_established();
+
+        send!(
+            s,
+            TcpRepr {
+                seq_number: REMOTE_SEQ + 1,
+                ack_number: Some(LOCAL_SEQ + 1),
+                payload: &b"abc"[..],
+                ..SEND_TEMPL
+            }
+        );
+
+        s.recv(|data| {
+            assert_eq!(data, b"abc");
+            (3, ())
+        })
+        .unwrap();
+
+        // Peer decides to retransmit (perhaps because the ACK was lost)
+        // and also pushed data.
+        send!(
+            s,
+            TcpRepr {
+                seq_number: REMOTE_SEQ + 1,
+                ack_number: Some(LOCAL_SEQ + 1),
+                payload: &b"abcdef"[..],
+                ..SEND_TEMPL
+            }
+        );
+
+        s.recv(|data| {
+            assert_eq!(data, b"def");
+            (3, ())
+        })
+        .unwrap();
     }
 
     #[test]
