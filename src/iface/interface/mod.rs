@@ -65,17 +65,17 @@ pub(crate) struct FragmentsBuffer {
 }
 
 #[cfg(not(feature = "_proto-fragmentation"))]
-pub(crate) struct Fragmenter {}
+pub struct Fragmenter {}
 
 #[cfg(not(feature = "_proto-fragmentation"))]
 impl Fragmenter {
-    pub(crate) fn new() -> Self {
+    pub fn new() -> Self {
         Self {}
     }
 }
 
 #[cfg(feature = "_proto-fragmentation")]
-pub(crate) struct Fragmenter {
+pub struct Fragmenter {
     /// The buffer that holds the unfragmented 6LoWPAN packet.
     buffer: [u8; FRAGMENTATION_BUFFER_SIZE],
     /// The size of the packet without the IEEE802.15.4 header and the fragmentation headers.
@@ -121,7 +121,7 @@ pub(crate) struct SixlowpanFragmenter {
 
 #[cfg(feature = "_proto-fragmentation")]
 impl Fragmenter {
-    pub(crate) fn new() -> Self {
+    pub fn new() -> Self {
         Self {
             buffer: [0u8; FRAGMENTATION_BUFFER_SIZE],
             packet_len: 0,
@@ -220,9 +220,9 @@ use check;
 /// a dependency on heap allocation, it instead owns a `BorrowMut<[T]>`, which can be
 /// a `&mut [T]`, or `Vec<T>` if a heap is available.
 pub struct Interface {
-    inner: InterfaceInner,
+    pub inner: InterfaceInner,
     fragments: FragmentsBuffer,
-    fragmenter: Fragmenter,
+    pub fragmenter: Fragmenter,
 }
 
 /// The device independent part of an Ethernet network interface.
@@ -309,7 +309,7 @@ impl Default for Config {
 #[derive(Debug, PartialEq)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[cfg(feature = "medium-ethernet")]
-enum EthernetPacket<'a> {
+pub enum EthernetPacket<'a> {
     #[cfg(feature = "proto-ipv4")]
     Arp(ArpRepr),
     Ip(IpPacket<'a>),
@@ -317,7 +317,7 @@ enum EthernetPacket<'a> {
 
 #[derive(Debug, PartialEq)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
-pub(crate) enum IpPacket<'a> {
+pub enum IpPacket<'a> {
     #[cfg(feature = "proto-ipv4")]
     Icmpv4((Ipv4Repr, Icmpv4Repr<'a>)),
     #[cfg(feature = "proto-igmp")]
@@ -1058,7 +1058,7 @@ impl InterfaceInner {
     }
 
     #[allow(unused)] // unused depending on which sockets are enabled
-    pub(crate) fn ip_mtu(&self) -> usize {
+    pub fn ip_mtu(&self) -> usize {
         self.caps.ip_mtu()
     }
 
@@ -1522,7 +1522,7 @@ impl InterfaceInner {
     }
 
     #[cfg(any(feature = "medium-ethernet", feature = "medium-ieee802154"))]
-    fn lookup_hardware_addr<Tx>(
+    pub fn lookup_hardware_addr<Tx>(
         &mut self,
         tx_token: Tx,
         src_addr: &IpAddress,
@@ -1668,7 +1668,7 @@ impl InterfaceInner {
         }
     }
 
-    fn dispatch_ip<Tx: TxToken>(
+    pub fn dispatch_ip<Tx: TxToken>(
         &mut self,
         tx_token: Tx,
         packet: IpPacket,
@@ -1866,7 +1866,7 @@ impl InterfaceInner {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
-enum DispatchError {
+pub enum DispatchError {
     /// No route to dispatch this packet. Retrying won't help unless
     /// configuration is changed.
     NoRoute,

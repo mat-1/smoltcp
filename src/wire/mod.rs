@@ -314,7 +314,7 @@ impl HardwareAddress {
     }
 
     #[cfg(feature = "medium-ethernet")]
-    pub(crate) fn ethernet_or_panic(&self) -> EthernetAddress {
+    pub fn ethernet_or_panic(&self) -> EthernetAddress {
         match self {
             HardwareAddress::Ethernet(addr) => *addr,
             #[allow(unreachable_patterns)]

@@ -164,7 +164,7 @@ impl InterfaceInner {
     }
 
     #[cfg(feature = "medium-ethernet")]
-    pub(super) fn process_arp<'frame, T: AsRef<[u8]>>(
+    pub fn process_arp<'frame, T: AsRef<[u8]>>(
         &mut self,
         timestamp: Instant,
         eth_frame: &EthernetFrame<&'frame T>,

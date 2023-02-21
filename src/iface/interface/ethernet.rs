@@ -49,7 +49,7 @@ impl InterfaceInner {
     }
 
     #[cfg(feature = "medium-ethernet")]
-    pub(super) fn dispatch_ethernet<Tx, F>(
+    pub fn dispatch_ethernet<Tx, F>(
         &mut self,
         tx_token: Tx,
         buffer_len: usize,
