@@ -680,7 +680,8 @@ impl Repr {
         packet.set_ecn(0);
         let total_len = packet.header_len() as u16 + self.payload_len as u16;
         packet.set_total_len(total_len);
-        packet.set_ident(0);
+        // packet.set_ident(0);
+        packet.set_ident(1); // we set this to 1 to impersonate a Nintendo 3DS
         packet.clear_flags();
         packet.set_more_frags(false);
         packet.set_dont_frag(true);

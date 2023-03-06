@@ -946,6 +946,13 @@ impl<'a> Repr<'a> {
                 let tmp = options;
                 options = TcpOption::WindowScale(value).emit(tmp);
             }
+
+            // add two nops here to impersonate Nintendo 3DS
+            let tmp = options;
+            options = TcpOption::NoOperation.emit(tmp);
+            let tmp = options;
+            options = TcpOption::NoOperation.emit(tmp);
+
             if self.sack_permitted {
                 let tmp = options;
                 options = TcpOption::SackPermitted.emit(tmp);
@@ -954,9 +961,9 @@ impl<'a> Repr<'a> {
                 options = TcpOption::SackRange(self.sack_ranges).emit(tmp);
             }
 
-            if !options.is_empty() {
-                TcpOption::EndOfList.emit(options);
-            }
+            // if !options.is_empty() {
+            //     TcpOption::EndOfList.emit(options);
+            // }
         }
         packet.set_urgent_at(0);
         packet.payload_mut()[..self.payload.len()].copy_from_slice(self.payload);
